@@ -1,6 +1,10 @@
-extends base.pug
+extends base
+include mixins/video
 
 block content 
-    h1 #{potato} Home!
-    input(type="text" placeholder="What's Your name?")
-    button send
+    h2 Welcome here you will see the trending videos
+    ul 
+        each video in videos
+            +video(video)
+        else
+            li Sorry, Nothing found
