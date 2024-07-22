@@ -1,7 +1,10 @@
 extends base
 
 block content 
-    h3 Hello from Upload
-    form(method="post") 
-        input(type="text" name="title" placeholder="Title" required)
+    if errorMessage 
+        span=errorMessage
+    form(method="POST") 
+        input(type="text" name="title" placeholder="Title" required maxlength=80)
+        input(type="text" name="description" placeholder="Description" required minlength=20)
+        input(type="text" name="hashtags" placeholder="hashtags, separated by comma." required)
         input(type="submit" value="Upload Video")
