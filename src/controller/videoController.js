@@ -10,7 +10,6 @@ import videoModel from "../models/video";
 export const home = async (req, res) => {
   try {
     const videos = await videoModel.find({});
-    console.log(videos);
     return res.render("home", { pageTitle: "Home", videos });
   } catch (error) {
     return res.send("server-error", error);
@@ -20,18 +19,34 @@ export const home = async (req, res) => {
 export const watch = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
   const video = await videoModel.findById(id);
+  console.log(video);
+  if (video === null) {
+    return res.render("404", { pageTitle: "Video not found." });
+  }
   return res.render("watch", { pageTitle: `${video.title}`, video });
 };
 
-export const getEdit = (req, res) => {
+export const getEdit = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
-
-  res.render("edit", { pageTitle: `Editing ` });
+  const video = await videoModel.findById(id);
+  if (!video) {
+    res.render("404", { pageTitle: "Video not Found" });
+  }
+  res.render("edit", { pageTitle: `${video.title}`, video });
 };
 
-export const postEdit = (req, res) => {
+export const postEdit = async (req, res) => {
   const id = req.params.id;
-  const { title } = req.body; //form 안에 있는 value 의 Javascript representation(표시), 설정은 middleware에서 가능
+  const { title, description, hashtags } = req.body; //form 안에 있는 value 의 Javascript representation(표시), 설정은 middleware에서 가능
+  const videoBoolean = await videoModel.exists({ _id: id });
+  if (!videoBoolean) {
+    res.render("404", { pageTitle: "Video not Found" });
+  }
+  await videoModel.findByIdAndUpdate(id, {
+    title,
+    description,
+    hashtags: hashtags.split(",").map((word) => (word.startsWith("#") ? word : `#${word}`)),
+  });
   return res.redirect(`/videos/${id}`);
 };
 
@@ -43,9 +58,9 @@ export const postUpload = async (req, res) => {
   const { title, description, hashtags } = req.body;
   try {
     await videoModel.create({
-      title: title,
-      description: description,
-      hashtags: hashtags.split(",").map((word) => `#${word}`),
+      title,
+      description,
+      hashtags,
       meta: {
         views: 2,
         rating: 3,
