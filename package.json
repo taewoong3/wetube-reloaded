@@ -7,7 +7,7 @@
     "url": "git+https://github.com/taewoong3/wetube-reloaded.git"
   },
   "scripts": {
-    "dev": "nodemon --exec babel-node src/server.js"
+    "dev": "nodemon --exec babel-node src/init.js"
   },
   "author": "taewoong.moon <taewoong3@naver.com>",
   "license": "MIT",
@@ -17,7 +17,9 @@
   "homepage": "https://github.com/taewoong3/wetube-reloaded#readme",
   "dependencies": {
     "express": "^4.19.2",
-    "morgan": "^1.10.0"
+    "mongoose": "^8.5.1",
+    "morgan": "^1.10.0",
+    "pug": "^3.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.24.9",
