@@ -9,7 +9,7 @@ import videoModel from "../models/video";
     */
 export const home = async (req, res) => {
   try {
-    const videos = await videoModel.find({});
+    const videos = await videoModel.find({}).sort({ createDate: "desc" });
     return res.render("home", { pageTitle: "Home", videos });
   } catch (error) {
     return res.send("server-error", error);
@@ -19,7 +19,6 @@ export const home = async (req, res) => {
 export const watch = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
   const video = await videoModel.findById(id);
-  console.log(video);
   if (video === null) {
     return res.render("404", { pageTitle: "Video not found." });
   }
@@ -45,7 +44,7 @@ export const postEdit = async (req, res) => {
   await videoModel.findByIdAndUpdate(id, {
     title,
     description,
-    hashtags: hashtags.split(",").map((word) => (word.startsWith("#") ? word : `#${word}`)),
+    hashtags: videoModel.formatHashtags(hashtags),
   });
   return res.redirect(`/videos/${id}`);
 };
@@ -60,7 +59,7 @@ export const postUpload = async (req, res) => {
     await videoModel.create({
       title,
       description,
-      hashtags,
+      hashtags: videoModel.formatHashtags(hashtags),
       meta: {
         views: 2,
         rating: 3,
@@ -71,4 +70,29 @@ export const postUpload = async (req, res) => {
     console.log(error);
     return res.render("upload", { pageTitle: "Upload Video", errorMessage: error._message });
   }
+};
+
+export const deleteVideo = async (req, res) => {
+  const { id } = req.params;
+  // delete video
+  const video = await videoModel.findByIdAndDelete(id); //findByOneAndDelete() 함수를 사용하는게 좋다. findByIdAndDelete() 는 findByOneAndDelete() 함수의 간략한 버전
+  console.log(video);
+  return res.redirect("/");
+};
+
+export const search = async (req, res) => {
+  const { keyword } = req.query;
+  let videos = [];
+  if (keyword) {
+    videos = await videoModel.find({
+      title: {
+        //https://www.mongodb.com/docs/manual/reference/operator/query/eq/ 다양한 기능이 존재
+        // $regex: new RegExp(`${keyword}`, "i"), // i 는 대소문자 구분 없이
+        $regex: `${keyword}`,
+        $options: "i",
+      },
+    });
+    console.log(videos);
+  }
+  return res.render("search", { pageTitle: `Search`, videos });
 };

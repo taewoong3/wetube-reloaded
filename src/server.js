@@ -13,7 +13,7 @@ app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views");
 
 app.use(logger); // middelWare
-app.use(express.urlencoded({ extended: true })); //req.body() 가 존재하는 시점
+app.use(express.urlencoded({ extended: true })); //클라이언트에서 보내는 URL-encoded 데이터(즉, HTML 폼 데이터)를 Express 애플리케이션에서 파싱할 수 있도록 하기 위함
 app.use("/", globalRounter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
