@@ -20,7 +20,7 @@ export const watch = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
   const video = await videoModel.findById(id);
   if (video === null) {
-    return res.render("404", { pageTitle: "Video not found." });
+    return res.status(404).render("404", { pageTitle: "Video not found." });
   }
   return res.render("watch", { pageTitle: `${video.title}`, video });
 };
@@ -29,7 +29,7 @@ export const getEdit = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
   const video = await videoModel.findById(id);
   if (!video) {
-    res.render("404", { pageTitle: "Video not Found" });
+    res.status(404).render("404", { pageTitle: "Video not Found" });
   }
   res.render("edit", { pageTitle: `${video.title}`, video });
 };
@@ -39,7 +39,7 @@ export const postEdit = async (req, res) => {
   const { title, description, hashtags } = req.body; //form 안에 있는 value 의 Javascript representation(표시), 설정은 middleware에서 가능
   const videoBoolean = await videoModel.exists({ _id: id });
   if (!videoBoolean) {
-    res.render("404", { pageTitle: "Video not Found" });
+    res.status(404).render("404", { pageTitle: "Video not Found" });
   }
   await videoModel.findByIdAndUpdate(id, {
     title,
@@ -68,7 +68,7 @@ export const postUpload = async (req, res) => {
     return res.redirect("/");
   } catch (error) {
     console.log(error);
-    return res.render("upload", { pageTitle: "Upload Video", errorMessage: error._message });
+    return res.status(400).render("upload", { pageTitle: "Upload Video", errorMessage: error._message });
   }
 };
 
