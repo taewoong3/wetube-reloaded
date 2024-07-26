@@ -3,20 +3,29 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         link(rel="stylesheet" href="https://unpkg.com/mvp.css") 
-        title #{pageTitle} | Wetube
+        title #{pageTitle} | #{siteName}
     body 
         header
             h1=pageTitle
             nav 
                 ul
                     li 
-                        a(href="/videos/upload") Upload Videos 
+                        a(href="/") Home                    
+                    if loggedIn 
+                        li 
+                            a(href="/logout") LogOut 
+                        li 
+                            a(href="/my-profile") #{loggedInUser.name}의 Profile 
+                    else
+                        li 
+                            a(href="/join") Join 
+                        li
+                            a(href="/login") Login 
                     li 
-                        a(href="/") Home
+                        a(href="/videos/upload") Upload Videos 
                     li
                         a(href="/search") Search 
-                    li 
-                        a(href="/join") Join 
+                   
             
 
         main
