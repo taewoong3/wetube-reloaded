@@ -1,3 +1,4 @@
+import "dotenv/config"; //가장 먼저 실행될 수 있도록 가장 위쪽에 위치하는 것이 좋다.
 import "./db";
 import "./models/video";
 import "./models/User";
