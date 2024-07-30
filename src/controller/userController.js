@@ -2,6 +2,7 @@ import User from "../models/User";
 import bcrypt from "bcrypt";
 
 export const getJoin = (req, res) => res.render("join", { pageTitle: "join" });
+
 export const postJoin = async (req, res) => {
   const { email, username, password, password2, name, location } = req.body;
   const pageTitle = "Join";
@@ -33,12 +34,11 @@ export const getLogin = (req, res) => res.render("login", { pageTitle: "Login" }
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const pageTitle = "Login";
-  const exists = await User.exists({ username });
-  if (!exists) {
-    console.log("exists = ", exists);
+  const user = await User.exists({ username, socialLoginOnly: false });
+  if (!user) {
     return res.status(400).render("login", { pageTitle, errorMessage: "An account with this username does not exists" });
   }
-  const user = await User.findById(exists._id);
+  // const findUser = await User.findOne({ username, socialLoginOnly: false });
 
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) {
@@ -109,32 +109,31 @@ export const finishGithubLogin = async (req, res) => {
       return res.render("/login");
     }
     //로그인 규칙을 어떻게 만들 것인가? (Ex.중복된 email이 있을 경우 어떻게 처리할 것인가 등 여러가지 조건에서 생각해볼 것)
-    const existingUser = await User.findOne({ email: emailObject.email });
-    console.log("existsUser = ", existingUser);
-    if (existingUser) {
-      req.session.loggedIn = true;
-      req.session.user = existingUser;
-      return res.redirect("/");
-    } else {
+    let user = await User.findOne({ email: emailObject.email });
+    console.log("existsUser = ", user);
+    if (!user) {
       //DB에 해당 email을 가진 user가 없을 때
-      const user = await User.create({
+      user = await User.create({
         email: emailObject.email,
+        avatarUrl: userData.avatar_url,
         username: userData.login,
         password: "",
         name: userData.name,
         socialLoginOnly: true,
         location: userData.location,
       });
-      req.session.loggedIn = true;
-      req.session.user = user;
-      return res.redirect("/");
     }
+    req.session.loggedIn = true;
+    req.session.user = user;
+    return res.redirect("/");
   } else {
     return res.redirect("/login");
   }
 };
 
 export const edit = (req, res) => res.send("Edit User");
-export const remove = (req, res) => res.send("Remove User");
-export const logout = (req, res) => res.send("Logout");
+export const logout = (req, res) => {
+  req.session.destroy();
+  return res.redirect("/");
+};
 export const see = (req, res) => res.send("See");
