@@ -1,6 +1,7 @@
 import User from "../models/User";
 import bcrypt from "bcrypt";
 
+// Login
 export const getJoin = (req, res) => res.render("join", { pageTitle: "join" });
 
 export const postJoin = async (req, res) => {
@@ -29,6 +30,7 @@ export const postJoin = async (req, res) => {
   }
 };
 
+// Join
 export const getLogin = (req, res) => res.render("login", { pageTitle: "Login" });
 
 export const postLogin = async (req, res) => {
@@ -52,6 +54,7 @@ export const postLogin = async (req, res) => {
   return res.redirect("/");
 };
 
+// SNS Login
 export const startGithubLogin = (req, res) => {
   const baseUrl = "https://github.com/login/oauth/authorize";
   //- "scope"는 개발자가 사용자에 대해 어디까지 알 수 있는지 적으면 된다. (여러개를 요구하고 싶을 때 URL에 스페이스바 누르고 scope 조건 추가)
@@ -131,14 +134,42 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 
-//Edit
+// User - Edit
 export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
-export const postEdit = (req, res) => {
-  return res.render("edit-profile", { pageTitle: "Edit Profile" });
+export const postEdit = async (req, res) => {
+  // const id = req.session.user.id;
+  // const { name, email, username, location } = req.body;
+  const {
+    session: {
+      user: { _id, email: currentEmail, username: currentUsername },
+    },
+    body: { name, email, username, location },
+  } = req;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(_id, { name, email, username, location }, { new: true }); // [Reference - Options.new] if true, return the modified document rather than the original.
+    req.session.user = updatedUser;
+    return res.redirect("/users/edit");
+  } catch (error) {
+    return res.render("edit-profile", { pageTitle: "Edit Profile", errorMessage: "Error = " + error });
+  }
+  /*
+Session은 DB와 연결되어 있지 않기 때문에, 따로 업데이트를 진행해줘야 한다.
+아래 처럼 따로따로 업데이트 해주는 방식도 존재하지만, 비효율적이다. 그래서 "Options.new" 를 사용해서 수정된 내용을 리턴하는 방식 사용.
+
+  req.session.user = {
+    ...req.session.user, -- req.session.user 안에 있는 내용을 밖으로 전해주는 것
+    name,
+    email,
+    username,
+    location,
+  };
+  */
 };
 
+// Logout
 export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");

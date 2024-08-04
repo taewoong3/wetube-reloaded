@@ -13,16 +13,16 @@ html(lang="en")
                         a(href="/") Home                    
                     if loggedIn 
                         li 
+                            a(href="/videos/upload") Upload Videos 
+                        li 
                             a(href="/users/edit") Edit Profile 
                         li 
-                            a(href="/users/logout") LogOut 
+                            a(href="/users/logout") LogOut of #{loggedInUser.name} 
                     else
                         li 
                             a(href="/join") Join 
                         li
                             a(href="/login") Login 
-                    li 
-                        a(href="/videos/upload") Upload Videos 
                     li
                         a(href="/search") Search 
                    
