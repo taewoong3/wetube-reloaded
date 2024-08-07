@@ -1,3 +1,4 @@
+import { errorMonitor } from "connect-mongo";
 import User from "../models/User";
 import bcrypt from "bcrypt";
 
@@ -36,7 +37,7 @@ export const getLogin = (req, res) => res.render("login", { pageTitle: "Login" }
 export const postLogin = async (req, res) => {
   const { username, password } = req.body;
   const pageTitle = "Login";
-  const user = await User.exists({ username, socialLoginOnly: false });
+  const user = await User.findOne({ username, socialLoginOnly: false });
   if (!user) {
     return res.status(400).render("login", { pageTitle, errorMessage: "An account with this username does not exists" });
   }
@@ -139,22 +140,27 @@ export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
 export const postEdit = async (req, res) => {
+  const pageTitle = "Edit Profile";
   // const id = req.session.user.id;
   // const { name, email, username, location } = req.body;
   const {
     session: {
-      user: { _id },
+      user: { _id, email: currentEmail, username: currentUsername },
     },
     body: { name, email, username, location },
   } = req;
 
-  try {
-    const updatedUser = await User.findByIdAndUpdate(_id, { name, email, username, location }, { new: true }); // [Reference - Options.new] if true, return the modified document rather than the original.
-    req.session.user = updatedUser;
-    return res.redirect("/users/edit");
-  } catch (error) {
-    return res.render("edit-profile", { pageTitle: "Edit Profile", errorMessage: "Error = " + error });
+  const findUser = await User.findOne({ $and: [{ _id: { $ne: _id } }, { $or: [{ email }, { username }] }] });
+  if (findUser) {
+    if (currentEmail === email || currentUsername === username) {
+      return res.status(400).render("edit-profile", { pageTitle, errorMessage: "This email/username is already taken" });
+    }
   }
+
+  const updatedUser = await User.findByIdAndUpdate(_id, { name, email, username, location }, { new: true }); // [Reference - Options.new] if true, return the modified document rather than the original.
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
+
   /*
 Session은 DB와 연결되어 있지 않기 때문에, 따로 업데이트를 진행해줘야 한다.
 아래 처럼 따로따로 업데이트 해주는 방식도 존재하지만, 비효율적이다. 그래서 "Options.new" 를 사용해서 수정된 내용을 리턴하는 방식 사용.

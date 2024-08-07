@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
 
 //Interceptor
 userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 5);
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 const User = mongoose.model("user", userSchema);
