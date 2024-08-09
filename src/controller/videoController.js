@@ -38,6 +38,7 @@ export const postEdit = async (req, res) => {
   const id = req.params.id;
   const { title, description, hashtags } = req.body; //form 안에 있는 value 의 Javascript representation(표시), 설정은 middleware에서 가능
   const videoBoolean = await videoModel.exists({ _id: id });
+  console.log(videoBoolean);
   if (!videoBoolean) {
     res.status(404).render("404", { pageTitle: "Video not Found" });
   }
@@ -54,11 +55,13 @@ export const getUpload = (req, res) => {
 };
 
 export const postUpload = async (req, res) => {
+  const { path: fileUrl } = req.file;
   const { title, description, hashtags } = req.body;
   try {
     await videoModel.create({
       title,
       description,
+      fileUrl,
       hashtags: videoModel.formatHashtags(hashtags),
       meta: {
         views: 2,

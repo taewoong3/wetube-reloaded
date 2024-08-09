@@ -145,9 +145,10 @@ export const postEdit = async (req, res) => {
   // const { name, email, username, location } = req.body;
   const {
     session: {
-      user: { _id, email: currentEmail, username: currentUsername },
+      user: { _id, email: currentEmail, username: currentUsername, avatarUrl },
     },
     body: { name, email, username, location },
+    file,
   } = req;
 
   const findUser = await User.findOne({ $and: [{ _id: { $ne: _id } }, { $or: [{ email }, { username }] }] });
@@ -156,8 +157,10 @@ export const postEdit = async (req, res) => {
       return res.status(400).render("edit-profile", { pageTitle, errorMessage: "This email/username is already taken" });
     }
   }
-
-  const updatedUser = await User.findByIdAndUpdate(_id, { name, email, username, location }, { new: true }); // [Reference - Options.new] if true, return the modified document rather than the original.
+  /**
+   * Important! "Never save files in the database. Instead, save the file locations in the database."
+   */
+  const updatedUser = await User.findByIdAndUpdate(_id, { avatarUrl: file ? file.path : avatarUrl, name, email, username, location }, { new: true }); // [Reference - Options.new] if true, return the modified document rather than the original.
   req.session.user = updatedUser;
   return res.redirect("/users/edit");
 
@@ -180,4 +183,44 @@ export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
 };
-export const see = (req, res) => res.send("See");
+
+export const getChangePassword = (req, res) => {
+  return res.render("users/change-password", { pageTitle: "Change Password" });
+};
+export const postChangePassword = async (req, res) => {
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { oldPassword, newPassword, newPasswordConfirmation },
+  } = req;
+  if (newPassword !== newPasswordConfirmation) {
+    return res.status(400).render("users/change-password", { pageTitle: "Change Password", errorMessage: "The password does not match the confirmation" });
+  }
+  //처음부터 DB에서 찾은 유저의 비밀번호를 비교 대상군으로 입력하면, session을 업데이트 해주는 수고를 덜 할 수 있다.
+  const user = await User.findById({ _id });
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  if (!ok) {
+    return res.status(400).render("users/change-password", { pageTitle: "Change Password", errorMessage: "The current Password is Wrong" });
+  }
+
+  user.password = newPassword;
+  await user.save(); // save() 함수를 동작하면, User model에 있는 bcrypt.hash()가 동작한다.
+  /** 두가지 방법이 있다.
+   * 1. session을 사용하면 무조건 session을 업데이트 해줘야 한다.
+   * 2. 처음부터 DB에서 비밀번호를 가져와서 비교하는 것!!
+   *
+   * req.session.user.password = user.password;
+   */
+  // send notification
+  return res.redirect("/users/logout");
+};
+
+export const see = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    return res.status(404).render("404", { pageTitle: "404ErrorPage", mainContent: "User not found." });
+  }
+  return res.render("users/profile", { pageTitle: `Profile of ${user.name}`, user });
+};
