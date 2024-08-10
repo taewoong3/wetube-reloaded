@@ -11,6 +11,7 @@ const videoSchema = new mongoose.Schema({
     views: Number,
     rating: Number,
   },
+  owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" }, //ref - 연결 할 모델명 즉, 연결한 모델에서 ObjectId가 넘어 온다는 의미.
 });
 
 videoSchema.static("formatHashtags", function (hashtags) {
