@@ -9,11 +9,15 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   name: { type: String, required: true },
   location: String,
+  videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
 });
 
 //Interceptor
 userSchema.pre("save", async function () {
-  this.password = await bcrypt.hash(this.password, 10);
+  // 비밀번호가 수정될 때만 'hash'
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 });
 
 const User = mongoose.model("User", userSchema);

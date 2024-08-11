@@ -19,31 +19,47 @@ export const home = async (req, res) => {
 
 export const watch = async (req, res) => {
   const { id } = req.params; //const id = req.params.id;
-  const video = await videoModel.findById(id);
-  const owner = await User.findById(video.owner);
-  console.log(owner);
+  const video = await videoModel.findById(id).populate("owner");
+  console.log(video);
   if (video === null) {
     return res.status(404).render("404", { pageTitle: "Video not found." });
   }
-  return res.render("watch", { pageTitle: `${video.title}`, video, owner });
+  return res.render("watch", { pageTitle: `${video.title}`, video });
 };
 
 export const getEdit = async (req, res) => {
-  const { id } = req.params; //const id = req.params.id;
+  //const { id } = req.params; -- const id = req.params.id;
+  const {
+    session: {
+      user: { _id },
+    },
+    params: { id },
+  } = req;
   const video = await videoModel.findById(id);
   if (!video) {
     res.status(404).render("404", { pageTitle: "Video not Found" });
+  }
+  // '==' 은 type까지 비교하기 때문.
+  if (String(video.owner) !== String(_id)) {
+    return res.status(403).redirect("/");
   }
   res.render("edit", { pageTitle: `${video.title}`, video });
 };
 
 export const postEdit = async (req, res) => {
-  const id = req.params.id;
+  const {
+    session: {
+      user: { _id },
+    },
+    params: { id },
+  } = req;
   const { title, description, hashtags } = req.body; //form 안에 있는 value 의 Javascript representation(표시), 설정은 middleware에서 가능
-  const videoBoolean = await videoModel.exists({ _id: id });
-  console.log(videoBoolean);
-  if (!videoBoolean) {
+  const video = await videoModel.exists({ _id: id });
+  if (!video) {
     res.status(404).render("404", { pageTitle: "Video not Found" });
+  }
+  if (String(video.owner) !== String(_id)) {
+    return res.status(403).redirect("/");
   }
   await videoModel.findByIdAndUpdate(id, {
     title,
@@ -67,7 +83,7 @@ export const postUpload = async (req, res) => {
   } = req;
 
   try {
-    await videoModel.create({
+    const newVideo = await videoModel.create({
       title,
       description,
       fileUrl,
@@ -78,6 +94,10 @@ export const postUpload = async (req, res) => {
         rating: 3,
       },
     });
+    //Video를 업로드할 때, User에 저장
+    const user = await User.findById(_id);
+    user.videos.push(newVideo._id);
+    user.save();
     return res.redirect("/");
   } catch (error) {
     console.log(error);
@@ -86,10 +106,22 @@ export const postUpload = async (req, res) => {
 };
 
 export const deleteVideo = async (req, res) => {
-  const { id } = req.params;
-  // delete video
-  const video = await videoModel.findByIdAndDelete(id); //findByOneAndDelete() 함수를 사용하는게 좋다. findByIdAndDelete() 는 findByOneAndDelete() 함수의 간략한 버전
+  const {
+    session: {
+      user: { _id },
+    },
+    params: { id },
+  } = req;
+  const video = await videoModel.findById(id);
   console.log(video);
+  if (!video) {
+    res.status(404).render("404", { pageTitle: "Video not Found" });
+  }
+  if (String(video.owner) !== String(_id)) {
+    return res.status(403).redirect("/");
+  }
+  // delete video
+  await videoModel.findByIdAndDelete(id); //findByOneAndDelete() 함수를 사용하는게 좋다. findByIdAndDelete() 는 findByOneAndDelete() 함수의 간략한 버전
   return res.redirect("/");
 };
 

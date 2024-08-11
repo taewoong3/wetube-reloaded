@@ -4,8 +4,9 @@ block content
     video(src="/" + video.fileUrl, controls, width="640", height="360") 
     div
         p=video.description
-        small=video.createDate + " / Uploaded by " + owner.name
-    if String(owner._id) == String(video.owner)
+        small=video.createDate + " / Uploaded by "
+        a(href=`/users/${video.owner._id}`) #{video.owner.name}
+    if String(loggedInUser._id) == String(video.owner._id)
         a(href=`${video.id}/edit`) Edit Video &rarr;
         br
         a(href=`${video.id}/delete`) Delete Video &rarr;
