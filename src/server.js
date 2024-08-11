@@ -38,7 +38,8 @@ app.get("/add-one", (req, res, next) => {
 });
 
 app.use(localsMiddleWare);
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static("uploads")); //Express한테 사람들이 이 폴더안에 있는 파일들을 볼 수 있게 해달란 코드.(기본적으로 폴더는 공개되지 않기 때문.)
+app.use("/assets", express.static("assets"));
 app.use("/", rootRouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
