@@ -2,35 +2,12 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        link(rel="stylesheet" href="https://unpkg.com/mvp.css") 
+        //- https://cdnjs.com/libraries/font-awesome
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css")
         link(rel="stylesheet", href="/assets/css/styles.css")
         title #{pageTitle} | #{siteName}
     body 
-        header
-            h1=pageTitle
-            nav 
-                ul
-                    li 
-                        a(href="/") Home                    
-                    if loggedIn 
-                        li 
-                            a(href="/videos/upload") Upload Videos 
-                        li 
-                            a(href=`/users/${loggedInUser._id}`) My Profile
-                        li 
-                            a(href="/users/edit") Edit Profile 
-                        li 
-                            a(href="/users/logout") LogOut of #{loggedInUser.name} 
-                    else
-                        li 
-                            a(href="/join") Join 
-                        li
-                            a(href="/login") Login 
-                    li
-                        a(href="/search") Search 
-                   
-            
-
+        include partials/header
         main
             block content
         include partials/footer

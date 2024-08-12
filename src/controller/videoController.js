@@ -10,7 +10,7 @@ import videoModel from "../models/video";
     */
 export const home = async (req, res) => {
   try {
-    const videos = await videoModel.find({}).sort({ createDate: "desc" });
+    const videos = await videoModel.find({}).sort({ createdAt: "desc" }).populate("owner");
     return res.render("home", { pageTitle: "Home", videos });
   } catch (error) {
     return res.send("server-error", error);
@@ -129,15 +129,16 @@ export const search = async (req, res) => {
   const { keyword } = req.query;
   let videos = [];
   if (keyword) {
-    videos = await videoModel.find({
-      title: {
-        //https://www.mongodb.com/docs/manual/reference/operator/query/eq/ 다양한 기능이 존재
-        // $regex: new RegExp(`${keyword}`, "i"), // i 는 대소문자 구분 없이
-        $regex: `${keyword}`,
-        $options: "i",
-      },
-    });
-    console.log(videos);
+    videos = await videoModel
+      .find({
+        title: {
+          //https://www.mongodb.com/docs/manual/reference/operator/query/eq/ 다양한 기능이 존재
+          // $regex: new RegExp(`${keyword}`, "i"), // i 는 대소문자 구분 없이
+          $regex: `${keyword}`,
+          $options: "i",
+        },
+      })
+      .populate("owner");
   }
   return res.render("search", { pageTitle: `Search`, videos });
 };
