@@ -11,21 +11,21 @@ const videoContainer = document.getElementById("videoController");
 const videoControls = document.getElementById("videoControls");
 
 let controlsTimeout = null;
+let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
 
-const handlePlayClick = (e) => {
+const handlePlayClick = () => {
   // if the video is playing, pause it
   if (video.paused) {
     video.play();
   } else {
     video.pause();
   }
-
   playBtn.innerText = video.paused ? "Play" : "Paused";
 };
 
-const handleMute = (e) => {
+const handleMute = () => {
   // 처음에는 음소거가 되지 않았기 때문에 false
   if (video.muted) {
     video.muted = false;
@@ -65,10 +65,8 @@ const handleTimeUpdate = () => {
   currentTime.innerText = formatTime(Math.floor(video.currentTime)); //현재 video가 실행되는 시간을 말함.
   timeline.value = Math.floor(video.currentTime);
 
-  if (video.currentTime == video.duration) {
+  if (parseInt(timeline.value) == Math.floor(video.duration)) {
     playBtn.innerText = "Play";
-  } else {
-    playBtn.innerText = "Paused";
   }
 };
 
@@ -89,18 +87,23 @@ const handleFullScreen = () => {
   fullScreenBtn.innerText = fullScreen == null ? "Exit Full Screen" : "Enter Full Screen";
 };
 
+const hideControls = () => videoControls.classList.remove("showing");
+
 const handleMouseMove = () => {
   if (controlsTimeout) {
     clearTimeout(controlsTimeout);
     controlsTimeout = null;
   }
+  if (controlsMovementTimeout) {
+    clearTimeout(controlsMovementTimeout);
+    controlsMovementTimeout = null;
+  }
   videoControls.classList.add("showing");
+  controlsMovementTimeout = setTimeout(hideControls, 3000);
 };
 
 const handleMouseLeave = () => {
-  controlsTimeout = setTimeout(() => {
-    videoControls.classList.remove("showing");
-  }, 3000);
+  controlsTimeout = setTimeout(hideControls, 3000);
 };
 
 playBtn.addEventListener("click", handlePlayClick);
