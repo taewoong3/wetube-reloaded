@@ -142,3 +142,16 @@ export const search = async (req, res) => {
   }
   return res.render("search", { pageTitle: `Search`, videos });
 };
+
+// API Router 는 서버사이드랜더링을 하지 않는다.
+export const registerView = async (req, res) => {
+  const { id } = req.params;
+  const video = await videoModel.findById(id);
+  if (!video) {
+    return res.status(404);
+  }
+  video.meta.views = video.meta.views + 1;
+  await video.save();
+
+  return res.status(200);
+};

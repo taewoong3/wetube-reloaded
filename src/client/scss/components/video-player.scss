@@ -4,47 +4,75 @@
   video {
     width: 100%;
   }
-  .videoControls {
+  .videoControls__timeline {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
     &.showing {
       opacity: 1;
     }
-    align-items: center;
+    position: absolute;
+    width: 99%;
+    bottom: 48px;
+    left: 0;
+    height: 3px;
+    accent-color: rgb(255, 0, 0);
+  }
+  .videoControls {
+    #videoControls__container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .videoControls__volume {
+        display: flex;
+        align-items: center;
+        span {
+          margin-left: 10px;
+          i {
+            font-size: 20px;
+          }
+        }
+        #volume {
+          height: 4px;
+          accent-color: #ffffff;
+        }
+      }
+      #fullScreen {
+        font-size: 20px;
+        margin: 0 20px;
+      }
+    }
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    &.showing {
+      opacity: 1;
+    }
+    display: flex;
+    justify-content: space-between;
     border-radius: 10px;
     position: absolute;
-    bottom: 10px;
-    width: 95%;
+    bottom: 15px;
+    width: 99%;
     left: 0;
     right: 0;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 4fr 1fr auto;
+    // display: grid;
+    // grid-template-columns: 1fr 4fr 1fr auto;
     gap: 10px;
     justify-content: space-between;
-    background-color: #0f1117;
-    padding: 10px;
+    // background-color: #0f1117;
+    // padding: 10px;
     left: 0;
     box-sizing: border-box;
     .videoControls__play {
       display: flex;
       align-items: center;
-      justify-content: space-around;
+      // justify-content: space-around;
       .videoControls__playBtn {
-        margin: 0px 15px;
+        // margin: 0px 15px;
+        margin: 0px 20px 0px 5px;
       }
       .videoControls__time {
-        font-size: 12px;
-      }
-    }
-    .videoControls__volume {
-      display: flex;
-      align-items: center;
-      span {
-        margin-left: 10px;
-        i {
-          font-size: 20px;
-        }
+        font-size: 15px;
       }
     }
   }
