@@ -144,14 +144,15 @@ export const search = async (req, res) => {
 };
 
 // API Router 는 서버사이드랜더링을 하지 않는다.
+// status()는 render() 하기전에 상태 코드를 정할 수 있고, sendStatus()는 상태를 보내고 연결을 종료 시키는거다.
 export const registerView = async (req, res) => {
   const { id } = req.params;
   const video = await videoModel.findById(id);
   if (!video) {
-    return res.status(404);
+    return res.sendStatus(404);
   }
   video.meta.views = video.meta.views + 1;
   await video.save();
 
-  return res.status(200);
+  return res.sendStatus(200);
 };

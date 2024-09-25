@@ -141,12 +141,20 @@ const handleNothingAnyBody = (event) => {
   event.stopPropagation();
 };
 
+const handleEnded = () => {
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, {
+    method: "POST",
+  });
+};
+
 playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMute);
 volumeRange.addEventListener("input", handleVolumeChange); //change 이벤트는 마우스를 놓았을 때, input 이벤트는 실시간
 //video.addEventListener("loadedmetadata", handleLoadedMetadata); // 예: 비디오의 너비, 높이, 지속 시간 등 해당 데이터를 메타데이터라 하고, 해당 데이터로 로드 되었을 때 발생하는 이벤트
 video.addEventListener("loadeddata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate); // 비디오 시간이 변경되는걸 감지하는 event.
+video.addEventListener("ended", handleEnded);
 videoContainer.addEventListener("mousemove", handleMouseMove);
 videoContainer.addEventListener("mouseleave", handleMouseLeave);
 videoContainer.addEventListener("click", handlePlayClick);
