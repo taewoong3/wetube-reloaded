@@ -2,7 +2,11 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require("path");
 
 module.exports = {
-  entry: "./src/client/js/main.js", //실행 할 파일 위치
+  entry: {
+    main: "./src/client/js/main.js",
+    videoPlayer: "./src/client/js/videoPlayer.js",
+    recorder: "./src/client/js/recorder.js",
+  }, //실행 할 파일 위치
   plugins: [
     new MiniCssExtractPlugin({
       filename: "css/styles.css",
@@ -10,7 +14,7 @@ module.exports = {
   ],
   mode: "development",
   output: {
-    filename: "js/main.js",
+    filename: "js/[name].js",
     path: path.resolve(__dirname, "assets"), //저장 할 위치
   },
   module: {
